@@ -1,25 +1,204 @@
-<!DOCTYPE html><html lang="en"><head>
-     <script src="js/latest.js" data-utmify-prevent-xcod-sck="" data-utmify-prevent-subids="" async="" defer=""></script>
- <script>
-  window.pixelId = "69501dfc28082c8ce19c66c9";
-  var a = document.createElement("script");
-  a.setAttribute("async", "");
-  a.setAttribute("defer", "");
-  a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
-  document.head.appendChild(a);
-</script><script async="" defer="" src="js/pixel.js"></script>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="images/vite.svg">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Elixir</title>
-    <meta property="og:image" content="images/og_default.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
-    <script type="module" crossorigin="" src="js/index-CwoqdsLc.js"></script>
-    <link rel="stylesheet" crossorigin="" href="css/index-xBzGEvAX.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Runner Milionário Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    body { margin: 0; background: #020617; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    #hud { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; padding: 12px 30px; border-radius: 50px; font-size: 24px; font-weight: bold; z-index: 20; box-shadow: 0 4px 20px #fbbf2466; border: 2px solid #fff; }
+    #wrapper { position: relative; width: 100%; max-width: 600px; height: 350px; border-radius: 24px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.8); border: 3px solid #334155; }
+    canvas { width: 100%; height: 100%; background: #000; display: block; }
+    .popup { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; z-index: 30; backdrop-filter: blur(8px); }
+    .popup-content { background: #fff; padding: 40px; border-radius: 24px; text-align: center; max-width: 400px; border: 4px solid #fbbf24; }
+    .popup-content h2 { color: #1e293b; font-size: 32px; margin: 0; }
+    .popup-content button { cursor: pointer; margin-top: 25px; padding: 18px 40px; font-size: 20px; font-weight: 900; border: none; border-radius: 14px; background: #2563eb; color: #fff; box-shadow: 0 10px 0 #1e40af; transition: all 0.1s; }
+    .popup-content button:active { transform: translateY(5px); box-shadow: 0 5px 0 #1e40af; }
+    .hidden { display: none; }
+    #mute-btn { position: fixed; bottom: 20px; left: 20px; z-index: 50; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 40px; height: 40px; color: #fff; cursor: pointer; }
+</style>
+</head>
+<body>
 
-</body></html>
+<div id="hud">R$ 0</div>
+<button id="mute-btn" onclick="toggleMute()">🔊</button>
+
+<div id="start" class="popup">
+    <div class="popup-content">
+        <div style="font-size: 50px;">🏎️</div>
+        <h2>ACELERE!</h2>
+        <p>Mostre que você tem agilidade para gerenciar crises e ganhe seu bônus.</p>
+        <button onclick="start()">JOGAR E GANHAR</button>
+    </div>
+</div>
+
+<div id="end" class="popup hidden">
+    <div class="popup-content">
+        <div style="font-size: 60px;">💰</div>
+        <h2>META BATIDA!</h2>
+        <p>Você provou ser um <b>Gestor de Elite</b>. Seu desconto está liberado!</p>
+        <button onclick="location.href='SUA_VSL_AQUI.html'">ACESSAR CURSO AGORA</button>
+    </div>
+</div>
+
+<div id="wrapper">
+    <canvas id="game"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+canvas.width = 800; canvas.height = 400;
+
+let run = false, score = 0, frame = 0, muted = false;
+const groundY = 320;
+
+// Audio Context dinâmico (não precisa de arquivo externo)
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(freq, type, duration, vol=0.1) {
+    if(muted) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
+
+function toggleMute() {
+    muted = !muted;
+    document.getElementById("mute-btn").innerText = muted ? "🔇" : "🔊";
+}
+
+const player = {
+    x: 80, y: groundY - 60, w: 40, h: 70, vy: 0, gravity: 0.8,
+    update() {
+        this.vy += this.gravity;
+        this.y += this.vy;
+        if (this.y > groundY - this.h) { this.y = groundY - this.h; this.vy = 0; }
+    },
+    draw() {
+        ctx.save();
+        // Capa animada
+        ctx.fillStyle = "#dc2626";
+        ctx.beginPath();
+        ctx.moveTo(this.x + 5, this.y + 15);
+        ctx.quadraticCurveTo(this.x - 25 - (Math.sin(frame*0.3)*8), this.y + 30, this.x + 5, this.y + 55);
+        ctx.fill();
+        // Corpo e Cabeça
+        ctx.fillStyle = "#1e293b"; ctx.fillRect(this.x + 10, this.y + 20, 22, 35);
+        ctx.fillStyle = "#ffdbac"; ctx.beginPath(); ctx.arc(this.x + 21, this.y + 10, 11, 0, Math.PI*2); ctx.fill();
+        // Pernas (Animação de corrida)
+        ctx.lineWidth = 5; ctx.strokeStyle = "#1e293b";
+        let legX = Math.sin(frame * 0.25) * 12;
+        ctx.beginPath(); ctx.moveTo(this.x+15, this.y+55); ctx.lineTo(this.x+15+legX, this.y+72); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.x+27, this.y+55); ctx.lineTo(this.x+27-legX, this.y+72); ctx.stroke();
+        ctx.restore();
+    }
+};
+
+let obstacles = []; let coins = []; let particles = [];
+
+function createParticles(x, y) {
+    for(let i=0; i<8; i++) {
+        particles.push({x, y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1});
+    }
+}
+
+function spawn() {
+    if (frame % 90 === 0) {
+        const types = ['car', 'bus', 'hole'];
+        const type = types[Math.floor(Math.random()*types.length)];
+        obstacles.push({ x: 850, type, w: type === 'bus' ? 110 : 60 });
+    }
+    if (frame % 50 === 0) {
+        coins.push({ x: 850, y: groundY - 60 - Math.random()*120, r: 14, angle: 0 });
+    }
+}
+
+function drawScene() {
+    // Sky
+    let g = ctx.createLinearGradient(0,0,0,400); g.addColorStop(0,"#0f172a"); g.addColorStop(1,"#1e293b");
+    ctx.fillStyle = g; ctx.fillRect(0,0,800,400);
+    // City Parallax
+    ctx.fillStyle = "#334155";
+    for(let i=0; i<5; i++) {
+        ctx.fillRect((i*250) - (frame*1)%250, 150, 100, 200);
+    }
+    // Estrada
+    ctx.fillStyle = "#22c55e"; ctx.fillRect(0, groundY, 800, 100);
+    ctx.fillStyle = "#334155"; ctx.fillRect(0, groundY, 800, 40);
+    ctx.strokeStyle = "#fbbf24"; ctx.setLineDash([30, 30]); ctx.lineDashOffset = frame*8;
+    ctx.beginPath(); ctx.moveTo(0, groundY+20); ctx.lineTo(800, groundY+20); ctx.stroke(); ctx.setLineDash([]);
+}
+
+function loop() {
+    if (!run) return;
+    frame++;
+    ctx.clearRect(0,0,800,400);
+    drawScene();
+    spawn();
+
+    // Música de fundo procedural (clima de tensão/ação)
+    if(frame % 20 === 0) playSound(110 + (Math.sin(frame)*20), 'triangle', 0.1, 0.02);
+
+    player.update();
+    player.draw();
+
+    obstacles.forEach((o, i) => {
+        o.x -= 8;
+        ctx.fillStyle = o.type === 'car' ? "#ef4444" : o.type === 'bus' ? "#eab308" : "#000";
+        if(o.type === 'hole') ctx.beginPath(), ctx.ellipse(o.x+30, groundY+5, 40, 10, 0, 0, Math.PI*2), ctx.fill();
+        else ctx.fillRect(o.x, groundY-40, o.w, 40);
+
+        if (o.x < player.x+25 && o.x+o.w > player.x && player.y > groundY-65) {
+            if(frame % 10 === 0) {
+                score = Math.max(0, score - 2);
+                playSound(150, 'sawtooth', 0.2, 0.05);
+            }
+        }
+    });
+
+    coins.forEach((c, i) => {
+        c.x -= 8;
+        c.angle += 0.15;
+        ctx.save();
+        ctx.translate(c.x, c.y); ctx.scale(Math.cos(c.angle), 1);
+        ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(0,0,c.r,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#92400e"; ctx.font = "bold 16px Arial"; ctx.fillText("$", -5, 6);
+        ctx.restore();
+
+        if (Math.hypot(c.x - (player.x+20), c.y - (player.y+35)) < 45) {
+            score += 100;
+            createParticles(c.x, c.y);
+            playSound(880, 'sine', 0.1, 0.1);
+            coins.splice(i, 1);
+            document.getElementById("hud").innerText = "R$ " + score;
+            if(score >= 1000) { run = false; document.getElementById("end").classList.remove("hidden"); }
+        }
+    });
+
+    particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+        ctx.fillStyle = `rgba(251, 191, 36, ${p.life})`;
+        ctx.fillText("$", p.x, p.y);
+        if(p.life <= 0) particles.splice(i, 1);
+    });
+
+    obstacles = obstacles.filter(o => o.x > -150);
+    requestAnimationFrame(loop);
+}
+
+function start() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    document.getElementById("start").classList.add("hidden");
+    run = true; loop();
+}
+
+window.addEventListener("keydown", (e) => { if(e.code === "Space" && player.y >= groundY-player.h) player.vy = -16; });
+window.addEventListener("touchstart", (e) => { e.preventDefault(); if(player.y >= groundY-player.h) player.vy = -16; });
+window.addEventListener("mousedown", () => { if(player.y >= groundY-player.h) player.vy = -16; });
+</script>
+</body>
+</html>
