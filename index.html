@@ -2,78 +2,25 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Gestor Milionário Pro - Edição Especial</title>
+<title>Runner Gestor Elite</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-    body { margin: 0; background: #0c0c0c; font-family: 'Press Start 2P', cursive; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    body { margin: 0; background: #020617; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    #hud { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; padding: 12px 30px; border-radius: 50px; font-size: 24px; font-weight: bold; z-index: 20; box-shadow: 0 4px 20px #fbbf2466; border: 2px solid #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+    #wrapper { position: relative; width: 100%; max-width: 600px; height: 350px; border-radius: 24px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.8); border: 3px solid #334155; background: #000; }
+    canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+    .popup { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; z-index: 30; backdrop-filter: blur(8px); }
+    .popup-content { background: #fff; padding: 35px; border-radius: 24px; text-align: center; max-width: 380px; border: 4px solid #fbbf24; box-shadow: 0 0 30px rgba(251, 191, 36, 0.3); }
+    .popup-content h2 { color: #1e293b; font-size: 30px; margin: 0 0 15px; font-weight: 900; }
+    
+    /* Estilo do Input de Nome */
+    #player-name-input { width: 80%; padding: 12px; margin-top: 15px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 18px; text-align: center; outline: none; }
+    #player-name-input:focus { border-color: #2563eb; }
 
-    /* Importa uma fonte estilo pixel */
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-    #hud {
-        position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-        background: linear-gradient(135deg, #FFD700, #FFA500); /* Dourado */
-        color: #fff; padding: 10px 25px; border-radius: 40px;
-        font-size: 20px; font-family: 'Press Start 2P', cursive;
-        z-index: 20; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        border: 2px solid #fff;
-        text-shadow: 2px 2px #000;
-        min-width: 150px; text-align: center;
-    }
-
-    #wrapper {
-        position: relative; width: 100%; max-width: 800px; height: 450px;
-        border-radius: 18px; overflow: hidden;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-        border: 4px solid #4a4a4a;
-        background: #000; /* Fundo padrão para o canvas */
-    }
-
-    canvas {
-        width: 100%; height: 100%; display: block;
-        image-rendering: pixelated; /* Crucial para o estilo pixel art */
-        background: linear-gradient(#87CEEB, #B0E0E6); /* Céu azul claro */
-    }
-
-    .popup {
-        position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-        display: flex; align-items: center; justify-content: center;
-        z-index: 30; backdrop-filter: blur(6px);
-    }
-    .popup-content {
-        background: #fff; padding: 30px; border-radius: 16px;
-        text-align: center; max-width: 400px;
-        border: 3px solid #ffcc00;
-        box-shadow: 0 0 20px rgba(255,204,0,0.5);
-    }
-    .popup-content h2 {
-        color: #333; font-size: 24px; margin-bottom: 15px;
-        font-family: 'Press Start 2P', cursive;
-    }
-    .popup-content p {
-        color: #555; font-size: 14px; line-height: 1.5;
-        font-family: Arial, sans-serif;
-    }
-    .popup-content button {
-        cursor: pointer; margin-top: 25px; padding: 15px 30px;
-        font-size: 18px; font-weight: bold; border: none;
-        border-radius: 10px; background: #4CAF50; /* Verde */
-        color: #fff; box-shadow: 0 6px 0 #2E8B57; /* Sombra do botão */
-        transition: transform 0.1s, box-shadow 0.1s;
-        font-family: 'Press Start 2P', cursive;
-    }
-    .popup-content button:active {
-        transform: translateY(3px); box-shadow: 0 3px 0 #2E8B57;
-    }
+    .popup-content button { cursor: pointer; margin-top: 25px; padding: 18px 45px; font-size: 20px; font-weight: 900; border: none; border-radius: 15px; background: #2563eb; color: #fff; box-shadow: 0 8px 0 #1e40af; transition: all 0.1s; }
+    .popup-content button:active { transform: translateY(4px); box-shadow: 0 4px 0 #1e40af; }
     .hidden { display: none; }
-
-    #mute-btn {
-        position: fixed; bottom: 20px; left: 20px; z-index: 50;
-        background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3);
-        border-radius: 50%; width: 50px; height: 50px; color: #fff; cursor: pointer;
-        font-size: 22px; display: flex; align-items: center; justify-content: center;
-        text-shadow: 1px 1px #000;
-    }
+    #mute-btn { position: fixed; bottom: 20px; left: 20px; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; width: 45px; height: 45px; color: #fff; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
 <body>
@@ -83,19 +30,20 @@
 
 <div id="start" class="popup">
     <div class="popup-content">
-        <div style="font-size: 50px;">🚦</div>
-        <h2>TRÂNSITO INTENSO!</h2>
-        <p>Mostre sua agilidade desviando dos obstáculos e colete R$ 1000 para um desconto exclusivo!</p>
-        <button onclick="start()">INICIAR CORRIDA</button>
+        <div style="font-size: 60px;">🚀</div>
+        <h2>META: R$ 1.000</h2>
+        <p>Digite seu nome de Gestor e acelere!</p>
+        <input type="text" id="player-name-input" placeholder="Seu Nome Aqui" maxlength="12">
+        <button onclick="startGame()">JOGAR AGORA</button>
     </div>
 </div>
 
 <div id="end" class="popup hidden">
     <div class="popup-content">
-        <div style="font-size: 60px;">🏁</div>
-        <h2>DESAFIO VENCIDO!</h2>
-        <p>Você é um Mestre Gestor! Seu desconto exclusivo está liberado!</p>
-        <button onclick="location.href='SUA_VSL_AQUI.html'">RESGATAR AGORA</button>
+        <div style="font-size: 70px;">🏆</div>
+        <h2>MISSÃO CUMPRIDA!</h2>
+        <p>Sua performance foi excelente. Clique abaixo para garantir sua vaga com desconto.</p>
+        <button onclick="location.href='SUA_VSL_AQUI.html'">RESGATAR BÔNUS</button>
     </div>
 </div>
 
@@ -106,25 +54,21 @@
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-canvas.width = 800;
-canvas.height = 450; // Altura ajustada para o cenário da imagem
+canvas.width = 800; canvas.height = 400;
 
-let run = false, score = 0, frame = 0, muted = false, screenShake = 0;
-const groundY = 350; // Posição do chão ajustada
+let run = false, score = 0, frame = 0, muted = false, playerName = "";
+const groundY = 320;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function playSound(freq, type, duration, vol = 0.1) {
-    if (muted) return;
+function playSound(freq, type, duration, vol=0.1) {
+    if(muted) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
     gain.gain.setValueAtTime(vol, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
 }
 
 function toggleMute() {
@@ -132,268 +76,167 @@ function toggleMute() {
     document.getElementById("mute-btn").innerText = muted ? "🔇" : "🔊";
 }
 
-// *** DRAWING FUNCTIONS FOR PIXEL ART STYLE ***
-// Função para desenhar um único pixel
-function px(x, y, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, 1, 1);
-}
-
-// Desenha um retângulo pixelado
-function pxRect(x, y, w, h, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, w, h);
-}
-
-// Personagem Principal (Heroi Gestor)
 const player = {
-    x: 100, y: groundY - 80, w: 40, h: 80, vy: 0, gravity: 0.8, invul: 0,
+    x: 100, y: groundY - 100, w: 60, h: 90, vy: 0, gravity: 0.8,
     update() {
         this.vy += this.gravity;
         this.y += this.vy;
         if (this.y > groundY - this.h) { this.y = groundY - this.h; this.vy = 0; }
-        if (this.invul > 0) this.invul--;
     },
     draw() {
         ctx.save();
-        if (this.invul % 4 > 2) ctx.globalAlpha = 0.5; // Efeito de piscar ao bater
-
-        const walkAnim = Math.floor(frame / 6) % 4; // 4 frames de animação
-
-        // CABELO
-        pxRect(this.x + 10, this.y, 20, 10, "#451a03"); // Base
-        pxRect(this.x + 12, this.y - 2, 16, 4, "#451a03"); // Topete
+        const anim = Math.sin(frame * 0.2) * 4;
         
-        // CABEÇA
-        pxRect(this.x + 8, this.y + 6, 24, 20, "#ffdbac");
-        
-        // OLHOS
-        pxRect(this.x + 14, this.y + 10, 4, 4, "#fff"); pxRect(this.x + 22, this.y + 10, 4, 4, "#fff");
-        pxRect(this.x + 15, this.y + 11, 2, 2, "#000"); pxRect(this.x + 23, this.y + 11, 2, 2, "#000");
-        
-        // SOMBRANCELHAS
-        pxRect(this.x + 12, this.y + 8, 4, 1, "#451a03"); pxRect(this.x + 24, this.y + 8, 4, 1, "#451a03");
-
-        // NARIZ
-        pxRect(this.x + 19, this.y + 15, 2, 2, "#a0522d");
-
-        // BOCA
-        pxRect(this.x + 17, this.y + 18, 6, 2, "#991b1b");
-
-        // CORPO (Terno e Camisa)
-        pxRect(this.x + 10, this.y + 25, 20, 30, "#1d4ed8"); // Terno azul
-        pxRect(this.x + 13, this.y + 25, 14, 10, "#fff"); // Camisa branca
-        pxRect(this.x + 19, this.y + 27, 2, 8, "#dc2626"); // Gravata
-
-        // BRAÇOS
-        let armX = walkAnim % 2 === 0 ? 0 : 2;
-        pxRect(this.x + 8 + armX, this.y + 28, 6, 18, "#1d4ed8"); // Braço esquerdo
-        pxRect(this.x + 26 - armX, this.y + 28, 6, 18, "#1d4ed8"); // Braço direito
-
-        // MÃOS
-        pxRect(this.x + 8 + armX, this.y + 46, 5, 5, "#ffdbac");
-        pxRect(this.x + 27 - armX, this.y + 46, 5, 5, "#ffdbac");
-
-        // CAPA (Pixel art, saindo dos ombros)
+        // CAPA MELHORADA (Estilo Herói saindo dos ombros)
         ctx.fillStyle = "#e11d48";
-        // Parte superior da capa
-        pxRect(this.x + 8, this.y + 25, 24, 5, "#e11d48");
-        // Caimento da capa
-        pxRect(this.x + 5, this.y + 30, 8, 30, "#e11d48");
-        pxRect(this.x + 2, this.y + 40, 6, 30, "#e11d48");
-        pxRect(this.x, this.y + 50, 4, 30, "#e11d48");
+        ctx.beginPath();
+        ctx.moveTo(this.x + 15, this.y + 25); // Ombro 1
+        ctx.lineTo(this.x + 45, this.y + 25); // Ombro 2
+        ctx.bezierCurveTo(this.x - 30 - anim, this.y + 20 - anim, this.x - 50, this.y + 90 + anim, this.x + 10, this.y + 70);
+        ctx.fill();
+
+        // CORPO
+        ctx.fillStyle = "#1d4ed8";
+        ctx.fillRect(this.x + 15, this.y + 25, 30, 45);
+        ctx.fillStyle = "#fff"; ctx.fillRect(this.x + 27, this.y + 25, 6, 10);
+        ctx.fillStyle = "#dc2626"; ctx.fillRect(this.x + 29, this.y + 25, 2, 8);
+
+        // CABEÇA
+        ctx.fillStyle = "#ffdbac";
+        ctx.beginPath(); ctx.arc(this.x + 30, this.y + 10, 18, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#451a03";
+        ctx.beginPath(); ctx.arc(this.x + 30, this.y + 5, 20, Math.PI, 0);
+        ctx.lineTo(this.x + 50, this.y + 5); ctx.fill();
+
+        // OLHOS E ROSTO
+        ctx.fillStyle = "#fff"; ctx.fillRect(this.x + 22, this.y + 8, 6, 6); ctx.fillRect(this.x + 34, this.y + 8, 6, 6);
+        ctx.fillStyle = "#000"; ctx.fillRect(this.x + 24, this.y + 10, 3, 3); ctx.fillRect(this.x + 36, this.y + 10, 3, 3);
+        ctx.strokeStyle = "#27272a"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(this.x+20, this.y+5); ctx.lineTo(this.x+28, this.y+7); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.x+42, this.y+5); ctx.lineTo(this.x+34, this.y+7); ctx.stroke();
+        ctx.strokeStyle = "#991b1b"; ctx.beginPath(); ctx.arc(this.x+31, this.y+18, 5, 0.2, Math.PI-0.2); ctx.stroke();
 
         // PERNAS
-        let legOffset = walkAnim < 2 ? 0 : 2;
-        pxRect(this.x + 12 + legOffset, this.y + 55, 6, 25, "#1d4ed8"); // Perna esquerda
-        pxRect(this.x + 22 - legOffset, this.y + 55, 6, 25, "#1d4ed8"); // Perna direita
-
-        // PÉS
-        pxRect(this.x + 10 + legOffset, this.y + 78, 8, 4, "#000");
-        pxRect(this.x + 20 - legOffset, this.y + 78, 8, 4, "#000");
-
+        ctx.strokeStyle = "#1e3a8a"; ctx.lineWidth = 8;
+        let legSize = Math.sin(frame * 0.3) * 20;
+        ctx.beginPath(); ctx.moveTo(this.x+20, this.y+70); ctx.lineTo(this.x+20+legSize, this.y+95); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.x+40, this.y+70); ctx.lineTo(this.x+40-legSize, this.y+95); ctx.stroke();
+        
+        // NOME DO JOGADOR EM CIMA
+        if(playerName) {
+            ctx.fillStyle = "#fff";
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 3;
+            ctx.font = "bold 16px 'Segoe UI'";
+            ctx.textAlign = "center";
+            ctx.strokeText(playerName.toUpperCase(), this.x + 30, this.y - 15);
+            ctx.fillText(playerName.toUpperCase(), this.x + 30, this.y - 15);
+        }
 
         ctx.restore();
     }
 };
 
 let buildings = [];
-for (let i = 0; i < 15; i++) { // Mais prédios para preencher o fundo
-    buildings.push({
-        x: i * 60 + Math.random() * 50,
-        y: groundY - (100 + Math.random() * 150),
-        w: 30 + Math.random() * 20,
-        h: 100 + Math.random() * 150,
-        color: `rgb(${30 + Math.random() * 30}, ${40 + Math.random() * 20}, ${50 + Math.random() * 20})` // Tons de cinza/azul escuro
-    });
+let houses = []; // Elementos da "favela"
+for(let i=0; i<10; i++) {
+    buildings.push({x: i*180, w: 70 + Math.random()*40, h: 180 + Math.random()*120, color: '#1e293b'});
+    // Adiciona casinhas próximas
+    houses.push({x: i*180 + 80, w: 40, h: 40, color: '#92400e'}); 
+    houses.push({x: i*180 + 110, w: 35, h: 60, color: '#7c2d12'});
 }
-
-// Desenha um carro em pixel art
-function drawCar(x, y, type, color) {
-    if (type === 'red_car') {
-        pxRect(x, y + 10, 40, 15, color); // Base do carro
-        pxRect(x + 5, y + 5, 30, 10, color); // Teto
-        pxRect(x + 8, y + 6, 20, 8, "#87CEEB"); // Janela
-        pxRect(x + 5, y + 25, 10, 4, "#000"); // Roda 1
-        pxRect(x + 25, y + 25, 10, 4, "#000"); // Roda 2
-        pxRect(x + 38, y + 14, 2, 2, "#FFD700"); // Farol
-    } else if (type === 'blue_car') {
-        pxRect(x, y + 10, 45, 15, color); // Base do carro
-        pxRect(x + 5, y + 5, 35, 10, color); // Teto
-        pxRect(x + 8, y + 6, 25, 8, "#87CEEB"); // Janela
-        pxRect(x + 5, y + 25, 10, 4, "#000"); // Roda 1
-        pxRect(x + 30, y + 25, 10, 4, "#000"); // Roda 2
-        pxRect(x, y + 14, 2, 2, "#FFD700"); // Farol
-    } else if (type === 'bus') {
-        pxRect(x, y, 70, 30, color); // Base do ônibus
-        pxRect(x + 5, y + 5, 60, 15, "#87CEEB"); // Janelas
-        pxRect(x + 10, y + 30, 15, 6, "#000"); // Roda 1
-        pxRect(x + 45, y + 30, 15, 6, "#000"); // Roda 2
-        pxRect(x + 68, y + 15, 2, 4, "#FFD700"); // Farol
-    }
-}
-
-
-let obstacles = [];
-let coins = [];
 
 function drawScene() {
-    // Céu degradê (conforme a imagem)
-    let skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    skyGradient.addColorStop(0, "#87CEEB"); // Azul claro
-    skyGradient.addColorStop(1, "#B0E0E6"); // Azul mais claro
-    ctx.fillStyle = skyGradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Céu mais claro (Entardecer)
+    let sky = ctx.createLinearGradient(0,0,0,400); sky.addColorStop(0,"#1e293b"); sky.addColorStop(1,"#334155");
+    ctx.fillStyle = sky; ctx.fillRect(0,0,800,400);
 
-    // Prédios ao fundo (parallax)
-    buildings.forEach(b => {
-        b.x -= 0.5; // Movimento mais lento para o parallax
-        if (b.x < -b.w) b.x = canvas.width + Math.random() * 100;
-
-        pxRect(b.x, b.y, b.w, b.h, b.color);
-        // Janelas
-        for (let r = 0; r < b.h / 20; r++) {
-            for (let c = 0; c < b.w / 20; c++) {
-                if (Math.random() > 0.6) { // Algumas acesas
-                    pxRect(b.x + 5 + c * 20, b.y + 5 + r * 20, 10, 10, "#FFD700");
-                } else {
-                    pxRect(b.x + 5 + c * 20, b.y + 5 + r * 20, 10, 10, "#4a4a4a"); // Janelas apagadas
-                }
-            }
-        }
+    // Favela e Prédios
+    buildings.forEach((b, i) => {
+        b.x -= 1.5; if(b.x < -200) b.x = 1100;
+        ctx.fillStyle = b.color;
+        ctx.fillRect(b.x, 400 - b.h, b.w, b.h);
+        
+        // Desenha casinhas (favela)
+        let h1 = houses[i*2 % houses.length];
+        h1.x -= 1.5; if(h1.x < -200) h1.x = 1100;
+        ctx.fillStyle = "#78350f"; ctx.fillRect(h1.x, groundY - h1.h, h1.w, h1.h);
+        ctx.fillStyle = "#fbbf24"; ctx.fillRect(h1.x + 5, groundY - h1.h + 5, 10, 10); // Janelinha
     });
 
-    // Grama (pixel art)
-    pxRect(0, groundY - 10, canvas.width, 30, "#3CB371"); // Base da grama
-    for (let i = 0; i < canvas.width / 10; i++) {
-        pxRect((i * 10 - (frame * 8) % 10), groundY - 15, 5, 5, "#2E8B57"); // Detalhes da grama
+    ctx.fillStyle = "#166534"; ctx.fillRect(0, groundY, 800, 80);
+    ctx.fillStyle = "#334155"; ctx.fillRect(0, groundY + 15, 800, 50);
+    for(let i=0; i<30; i++) {
+        ctx.fillStyle = "#22c55e"; ctx.fillRect((i*40 - (frame*6)%40), groundY - 5, 20, 10);
     }
-
-    // Asfalto (pixel art)
-    pxRect(0, groundY + 15, canvas.width, 60, "#4a4a4a"); // Asfalto escuro
-    // Faixas da estrada
-    ctx.fillStyle = "#fff";
-    for (let i = 0; i < canvas.width / 50; i++) {
-        pxRect((i * 50 - (frame * 10) % 50), groundY + 40, 30, 5, "#fff");
-    }
+    ctx.strokeStyle = "#fbbf24"; ctx.setLineDash([40, 30]); ctx.lineDashOffset = frame*12; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(0, groundY+40); ctx.lineTo(800, groundY+40); ctx.stroke(); ctx.setLineDash([]);
 }
+
+let obstacles = []; let coins = [];
 
 function loop() {
     if (!run) return;
     frame++;
-    ctx.save();
-    if (screenShake > 0) {
-        ctx.translate(Math.random() * screenShake, Math.random() * screenShake);
-        screenShake *= 0.9;
-    }
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0,0,800,400);
     drawScene();
-
-    if (frame % 25 === 0) playSound(110 + ((frame / 25) % 4 * 10), 'sawtooth', 0.4, 0.08);
-
+    if(frame % 25 === 0) playSound(110 + ((frame/25)%4 * 10), 'sawtooth', 0.4, 0.08);
     player.update();
     player.draw();
 
-    // Spawn de Carros e Ônibus
     if (frame % 90 === 0) {
-        const types = ['red_car', 'blue_car', 'bus'];
-        const type = types[Math.floor(Math.random() * types.length)];
-        const carColor = type === 'red_car' ? "#FF0000" : type === 'blue_car' ? "#0000FF" : "#008000"; // Cores específicas
-        obstacles.push({ x: canvas.width + 50, y: groundY + 10, type: type, color: carColor, w: type === 'bus' ? 70 : 40, h: type === 'bus' ? 40 : 25, speed: 6 + Math.random() * 4 });
+        const types = ['car', 'bus', 'moto'];
+        obstacles.push({ x: 850, type: types[Math.floor(Math.random()*3)], w: 80 });
     }
-    // Spawn de Moedas
-    if (frame % 45 === 0) {
-        coins.push({ x: canvas.width + 50, y: groundY - 60 - Math.random() * 100, r: 12, angle: 0 });
-    }
+    if (frame % 45 === 0) coins.push({ x: 850, y: groundY - 80 - Math.random()*100, r: 16, angle: 0 });
 
     obstacles.forEach((o, i) => {
-        o.x -= o.speed;
-        drawCar(o.x, o.y - (o.h / 2) + 5, o.type, o.color); // Ajusta a posição Y do carro para ficar na estrada
-
-        // Colisão com Dano
-        if (o.x < player.x + player.w - 10 && o.x + o.w > player.x + 10 &&
-            player.y + player.h > o.y && player.invul === 0) {
-            score = Math.max(0, score - 50);
-            player.invul = 60; // 1 segundo de invulnerabilidade
-            screenShake = 15;
-            playSound(100, 'square', 0.3, 0.2); // Som de batida
+        o.x -= 10;
+        if(o.type === 'car') {
+            ctx.fillStyle = "#dc2626"; ctx.fillRect(o.x, groundY-25, 80, 30);
+            ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(o.x+15, groundY+5, 10, 0, 7); ctx.arc(o.x+65, groundY+5, 10, 0, 7); ctx.fill();
+        } else if(o.type === 'bus') {
+            ctx.fillStyle = "#16a34a"; ctx.fillRect(o.x, groundY-50, 120, 55);
+            ctx.fillStyle = "#93c5fd"; ctx.fillRect(o.x+10, groundY-40, 100, 15);
+        } else {
+            ctx.fillStyle = "#000"; ctx.fillRect(o.x, groundY-15, 50, 20);
+        }
+        if (o.x < player.x+40 && o.x+80 > player.x && player.y > groundY-80) {
+            score = Math.max(0, score - 5);
+            playSound(150, 'square', 0.2, 0.05);
             document.getElementById("hud").innerText = "R$ " + score;
         }
     });
 
     coins.forEach((c, i) => {
-        c.x -= 8;
-        c.angle += 0.2;
-        ctx.save();
-        ctx.translate(c.x, c.y);
-        ctx.scale(Math.cos(c.angle), 1);
-        
-        // Desenha a moeda em pixel art
-        pxRect(-c.r / 2, -c.r / 2, c.r, c.r, "#FFD700"); // Moeda
-        pxRect(-c.r / 2 + 2, -c.r / 2 + 2, c.r - 4, c.r - 4, "#FFA500"); // Centro
-        pxRect(-2, -3, 4, 6, "#8B4513"); // Símbolo $
-        
-        ctx.restore();
-
-        if (Math.hypot(c.x - (player.x + player.w / 2), c.y - (player.y + player.h / 2)) < 40) {
-            score += 100;
-            playSound(880, 'sine', 0.1, 0.15); // Som da moeda
+        c.x -= 10; c.angle += 0.2;
+        ctx.save(); ctx.translate(c.x, c.y); ctx.scale(Math.cos(c.angle), 1);
+        ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(0,0,c.r,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle = "#92400e"; ctx.lineWidth = 3; ctx.stroke();
+        ctx.fillStyle = "#b45309"; ctx.font = "bold 20px Arial"; ctx.fillText("$", -7, 8); ctx.restore();
+        if (Math.hypot(c.x - (player.x+30), c.y - (player.y+40)) < 50) {
+            score += 100; playSound(880, 'sine', 0.1, 0.15);
             coins.splice(i, 1);
             document.getElementById("hud").innerText = "R$ " + score;
-            if (score >= 1000) {
-                run = false;
-                document.getElementById("end").classList.remove("hidden");
-            }
+            if(score >= 1000) { run = false; document.getElementById("end").classList.remove("hidden"); }
         }
     });
 
-    obstacles = obstacles.filter(o => o.x > -o.w - 50); // Remove obstáculos que saem da tela
-    coins = coins.filter(c => c.x > -c.r - 50); // Remove moedas que saem da tela
-
-    ctx.restore();
+    obstacles = obstacles.filter(o => o.x > -200);
     requestAnimationFrame(loop);
 }
 
-function start() {
+function startGame() {
+    const input = document.getElementById("player-name-input");
+    playerName = input.value || "GESTOR";
     if (audioCtx.state === 'suspended') audioCtx.resume();
     document.getElementById("start").classList.add("hidden");
-    run = true;
-    loop();
+    run = true; loop();
 }
 
-// Controles
-window.addEventListener("mousedown", () => {
-    if (player.y >= groundY - player.h) player.vy = -18;
-});
-window.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    if (player.y >= groundY - player.h) player.vy = -18;
-});
-window.addEventListener("keydown", (e) => {
-    if (e.code === "Space" && player.y >= groundY - player.h) player.vy = -18;
-});
+window.addEventListener("mousedown", () => { if(player.y >= groundY-player.h) player.vy = -18; });
+window.addEventListener("touchstart", (e) => { e.preventDefault(); if(player.y >= groundY-player.h) player.vy = -18; });
+window.addEventListener("keydown", (e) => { if(e.code === "Space" && player.y >= groundY-player.h) player.vy = -18; });
 </script>
 </body>
 </html>
-```http://googleusercontent.com/image_generation_content/4
