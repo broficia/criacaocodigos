@@ -2,19 +2,20 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Gestor Milionário Runner</title>
+<title>Runner Gestor Elite</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
     body { margin: 0; background: #020617; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    #hud { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; padding: 12px 30px; border-radius: 50px; font-size: 24px; font-weight: bold; z-index: 20; box-shadow: 0 4px 20px #fbbf2466; border: 2px solid #fff; }
-    #wrapper { position: relative; width: 100%; max-width: 600px; height: 350px; border-radius: 24px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.8); border: 3px solid #334155; }
-    canvas { width: 100%; height: 100%; background: #0f172a; display: block; }
+    #hud { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; padding: 12px 30px; border-radius: 50px; font-size: 24px; font-weight: bold; z-index: 20; box-shadow: 0 4px 20px #fbbf2466; border: 2px solid #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+    #wrapper { position: relative; width: 100%; max-width: 600px; height: 350px; border-radius: 24px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.8); border: 3px solid #334155; background: #000; }
+    canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
     .popup { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; z-index: 30; backdrop-filter: blur(8px); }
-    .popup-content { background: #fff; padding: 30px; border-radius: 24px; text-align: center; max-width: 350px; border: 4px solid #fbbf24; }
-    .popup-content h2 { color: #1e293b; font-size: 28px; margin: 10px 0; }
-    .popup-content button { cursor: pointer; margin-top: 20px; padding: 15px 35px; font-size: 18px; font-weight: 900; border: none; border-radius: 12px; background: #2563eb; color: #fff; box-shadow: 0 6px 0 #1e40af; }
+    .popup-content { background: #fff; padding: 35px; border-radius: 24px; text-align: center; max-width: 380px; border: 4px solid #fbbf24; box-shadow: 0 0 30px rgba(251, 191, 36, 0.3); }
+    .popup-content h2 { color: #1e293b; font-size: 30px; margin: 0 0 15px; font-weight: 900; }
+    .popup-content button { cursor: pointer; margin-top: 25px; padding: 18px 45px; font-size: 20px; font-weight: 900; border: none; border-radius: 15px; background: #2563eb; color: #fff; box-shadow: 0 8px 0 #1e40af; transition: all 0.1s; }
+    .popup-content button:active { transform: translateY(4px); box-shadow: 0 4px 0 #1e40af; }
     .hidden { display: none; }
-    #mute-btn { position: fixed; bottom: 20px; left: 20px; z-index: 50; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 45px; height: 45px; color: #fff; cursor: pointer; }
+    #mute-btn { position: fixed; bottom: 20px; left: 20px; z-index: 50; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 50%; width: 45px; height: 45px; color: #fff; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
 <body>
@@ -24,19 +25,19 @@
 
 <div id="start" class="popup">
     <div class="popup-content">
-        <div style="font-size: 50px;">🦸‍♂️</div>
-        <h2>ACELERE!</h2>
-        <p>Mostre sua agilidade de Gestor e conquiste seu bônus de Elite.</p>
-        <button onclick="start()">JOGAR E GANHAR</button>
+        <div style="font-size: 60px;">🚀</div>
+        <h2>META: R$ 1.000</h2>
+        <p>Pilote sua carreira, desvie dos obstáculos e resgate seu desconto exclusivo agora!</p>
+        <button onclick="start()">INICIAR AGORA</button>
     </div>
 </div>
 
 <div id="end" class="popup hidden">
     <div class="popup-content">
-        <div style="font-size: 60px;">💰</div>
-        <h2>META BATIDA!</h2>
-        <p>Você provou ser um Gestor de Elite. Seu desconto está liberado!</p>
-        <button onclick="location.href='SUA_VSL_AQUI.html'">RESGATAR AGORA</button>
+        <div style="font-size: 70px;">🏆</div>
+        <h2>MISSÃO CUMPRIDA!</h2>
+        <p>Sua performance foi excelente. Clique abaixo para garantir sua vaga com desconto.</p>
+        <button onclick="location.href='SUA_VSL_AQUI.html'">RESGATAR BÔNUS</button>
     </div>
 </div>
 
@@ -69,8 +70,9 @@ function toggleMute() {
     document.getElementById("mute-btn").innerText = muted ? "🔇" : "🔊";
 }
 
+// Classe para gerenciar o desenho detalhado do personagem
 const player = {
-    x: 80, y: groundY - 80, w: 50, h: 80, vy: 0, gravity: 0.8,
+    x: 100, y: groundY - 100, w: 60, h: 90, vy: 0, gravity: 0.8,
     update() {
         this.vy += this.gravity;
         this.y += this.vy;
@@ -78,86 +80,91 @@ const player = {
     },
     draw() {
         ctx.save();
-        let shake = Math.sin(frame * 0.2) * 2;
+        const anim = Math.sin(frame * 0.2) * 3;
         
-        // CAPA
-        ctx.fillStyle = "#ef4444";
+        // CAPA (Vermelha vibrante com movimento)
+        ctx.fillStyle = "#e11d48";
         ctx.beginPath();
-        ctx.moveTo(this.x + 10, this.y + 25);
-        ctx.bezierCurveTo(this.x - 40, this.y + 10 + shake, this.x - 30, this.y + 60 + shake, this.x + 10, this.y + 55);
+        ctx.moveTo(this.x + 10, this.y + 30);
+        ctx.bezierCurveTo(this.x - 50, this.y + 10 + anim*2, this.x - 40, this.y + 80 + anim, this.x + 15, this.y + 65);
         ctx.fill();
 
-        // CORPO (Terno Azul Vivo)
-        ctx.fillStyle = "#2563eb";
-        ctx.fillRect(this.x + 12, this.y + 20, 26, 40);
-        
-        // CABEÇA E ROSTO
+        // CORPO (Terno Azul Royal com brilho)
+        ctx.fillStyle = "#1d4ed8";
+        ctx.fillRect(this.x + 15, this.y + 25, 30, 45);
+        // Detalhe da Gola/Gravata
+        ctx.fillStyle = "#fff"; ctx.fillRect(this.x + 27, this.y + 25, 6, 10);
+        ctx.fillStyle = "#dc2626"; ctx.fillRect(this.x + 29, this.y + 25, 2, 8);
+
+        // CABEÇA (Rosto detalhado)
         ctx.fillStyle = "#ffdbac";
-        ctx.beginPath(); ctx.arc(this.x + 25, this.y + 10, 14, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(this.x + 30, this.y + 10, 18, 0, Math.PI * 2); ctx.fill();
         
-        // CABELO
+        // CABELO (Estilo Topete)
         ctx.fillStyle = "#451a03";
-        ctx.beginPath(); ctx.arc(this.x + 25, this.y + 5, 15, Math.PI, 0); ctx.fill();
+        ctx.beginPath();
+        ctx.arc(this.x + 30, this.y + 5, 20, Math.PI, 0);
+        ctx.lineTo(this.x + 50, this.y + 5); ctx.fill();
 
-        // OLHOS
-        ctx.fillStyle = "white";
-        ctx.fillRect(this.x + 20, this.y + 8, 4, 4);
-        ctx.fillRect(this.x + 28, this.y + 8, 4, 4);
-        ctx.fillStyle = "black";
-        ctx.fillRect(this.x + 21, this.y + 9, 2, 2);
-        ctx.fillRect(this.x + 29, this.y + 9, 2, 2);
+        // OLHOS (Expressivos)
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(this.x + 22, this.y + 8, 6, 6);
+        ctx.fillRect(this.x + 34, this.y + 8, 6, 6);
+        ctx.fillStyle = "#000";
+        ctx.fillRect(this.x + 24, this.y + 10, 3, 3);
+        ctx.fillRect(this.x + 36, this.y + 10, 3, 3);
 
-        // SOBRANCELHAS (Estilo determinado)
-        ctx.strokeStyle = "#451a03"; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(this.x+19, this.y+5); ctx.lineTo(this.x+24, this.y+7); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(this.x+31, this.y+5); ctx.lineTo(this.x+26, this.y+7); ctx.stroke();
+        // SOBRANCELHAS E BOCA
+        ctx.strokeStyle = "#27272a"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(this.x+20, this.y+5); ctx.lineTo(this.x+28, this.y+7); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.x+42, this.y+5); ctx.lineTo(this.x+34, this.y+7); ctx.stroke();
+        ctx.strokeStyle = "#991b1b"; ctx.beginPath(); ctx.arc(this.x+31, this.y+18, 5, 0.2, Math.PI-0.2); ctx.stroke();
 
-        // BOCA E NARIZ
-        ctx.fillStyle = "#000"; ctx.fillRect(this.x + 24, this.y + 12, 2, 3); // Nariz
-        ctx.strokeStyle = "#991b1b"; ctx.beginPath(); ctx.arc(this.x+25, this.y+16, 3, 0.2, Math.PI-0.2); ctx.stroke();
-
-        // PERNAS
-        ctx.strokeStyle = "#1e3a8a"; ctx.lineWidth = 6;
-        let legX = Math.sin(frame * 0.3) * 15;
-        ctx.beginPath(); ctx.moveTo(this.x+18, this.y+60); ctx.lineTo(this.x+18+legX, this.y+80); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(this.x+32, this.y+60); ctx.lineTo(this.x+32-legX, this.y+80); ctx.stroke();
+        // PERNAS (Animação de corrida)
+        ctx.strokeStyle = "#1e3a8a"; ctx.lineWidth = 8;
+        let legSize = Math.sin(frame * 0.3) * 20;
+        ctx.beginPath(); ctx.moveTo(this.x+20, this.y+70); ctx.lineTo(this.x+20+legSize, this.y+95); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.x+40, this.y+70); ctx.lineTo(this.x+40-legSize, this.y+95); ctx.stroke();
         
         ctx.restore();
     }
 };
 
 let buildings = [];
-for(let i=0; i<10; i++) buildings.push({x: i*120, w: 80 + Math.random()*40, h: 150 + Math.random()*150});
+for(let i=0; i<8; i++) buildings.push({x: i*150, w: 90 + Math.random()*60, h: 200 + Math.random()*150, color: i%2===0?'#0f172a':'#1e293b'});
 
 function drawScene() {
-    // Fundo Noite
-    let g = ctx.createLinearGradient(0,0,0,400); g.addColorStop(0,"#020617"); g.addColorStop(1,"#1e1b4b");
-    ctx.fillStyle = g; ctx.fillRect(0,0,800,400);
+    // Fundo Noite Degradê
+    let sky = ctx.createLinearGradient(0,0,0,400); sky.addColorStop(0,"#020617"); sky.addColorStop(1,"#1e1b4b");
+    ctx.fillStyle = sky; ctx.fillRect(0,0,800,400);
 
-    // Prédios (Parallax)
-    ctx.fillStyle = "#0f172a";
+    // Prédios ao fundo (Parallax real)
     buildings.forEach(b => {
-        b.x -= 1; if(b.x < -150) b.x = 900;
+        b.x -= 1.5; if(b.x < -200) b.x = 1000;
+        ctx.fillStyle = b.color;
         ctx.fillRect(b.x, 400 - b.h, b.w, b.h);
-        // Janelas iluminadas
-        ctx.fillStyle = "#fde047";
-        for(let j=0; j<3; j++) {
-           if((frame+b.x)%50 > 10) ctx.fillRect(b.x + 10 + (j*25), 400 - b.h + 20, 10, 10);
+        // Janelas detalhadas
+        ctx.fillStyle = "#facc15";
+        for(let r=0; r<6; r++) {
+            for(let c=0; c<2; c++) {
+                if((b.x + r*10)%70 > 20) ctx.fillRect(b.x + 15 + c*40, 400 - b.h + 30 + r*40, 15, 15);
+            }
         }
-        ctx.fillStyle = "#0f172a";
     });
 
-    // Grama Pixelada
-    ctx.fillStyle = "#166534"; ctx.fillRect(0, groundY, 800, 100);
-    for(let i=0; i<40; i++) {
+    // Estrada e Grama
+    ctx.fillStyle = "#166534"; ctx.fillRect(0, groundY, 800, 80); // Base grama
+    ctx.fillStyle = "#334155"; ctx.fillRect(0, groundY + 15, 800, 50); // Asfalto
+    
+    // Grama pixelada no topo
+    for(let i=0; i<30; i++) {
         ctx.fillStyle = "#22c55e";
-        ctx.fillRect((i*30 - (frame*5)%30), groundY - 5, 15, 5);
+        ctx.fillRect((i*40 - (frame*6)%40), groundY - 5, 20, 10);
     }
-
-    // Estrada
-    ctx.fillStyle = "#334155"; ctx.fillRect(0, groundY + 10, 800, 50);
-    ctx.strokeStyle = "#fff"; ctx.setLineDash([40, 40]); ctx.lineDashOffset = frame*10;
-    ctx.beginPath(); ctx.moveTo(0, groundY+35); ctx.lineTo(800, groundY+35); ctx.stroke(); ctx.setLineDash([]);
+    
+    // Faixa amarela estrada
+    ctx.strokeStyle = "#fbbf24"; ctx.setLineDash([40, 30]); ctx.lineDashOffset = frame*12; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(0, groundY+40); ctx.lineTo(800, groundY+40); ctx.stroke(); ctx.setLineDash([]);
 }
 
 let obstacles = []; let coins = [];
@@ -168,27 +175,36 @@ function loop() {
     ctx.clearRect(0,0,800,400);
     drawScene();
 
-    // Som de fundo (Bassline)
+    // Música de fundo BASS (Volume ideal)
     if(frame % 25 === 0) playSound(110 + ((frame/25)%4 * 10), 'sawtooth', 0.4, 0.08);
 
     player.update();
     player.draw();
 
-    if (frame % 80 === 0) {
-        const types = ['car', 'bus', 'hole'];
-        obstacles.push({ x: 850, type: types[Math.floor(Math.random()*3)], w: 70 });
+    // Spawn de Carros e Ônibus Detalhados
+    if (frame % 90 === 0) {
+        const types = ['car', 'bus', 'moto'];
+        obstacles.push({ x: 850, type: types[Math.floor(Math.random()*3)], w: 80 });
     }
-    if (frame % 40 === 0) coins.push({ x: 850, y: groundY - 60 - Math.random()*120, r: 15, angle: 0 });
+    // Spawn de Moedas
+    if (frame % 45 === 0) coins.push({ x: 850, y: groundY - 80 - Math.random()*100, r: 16, angle: 0 });
 
     obstacles.forEach((o, i) => {
         o.x -= 10;
-        ctx.fillStyle = o.type === 'car' ? "#dc2626" : o.type === 'bus' ? "#166534" : "#000";
-        if(o.type === 'hole') { ctx.beginPath(); ctx.ellipse(o.x+35, groundY+20, 40, 10, 0, 0, Math.PI*2); ctx.fill(); }
-        else ctx.fillRect(o.x, groundY-30, o.w + (o.type==='bus'?40:0), 40);
+        if(o.type === 'car') {
+            ctx.fillStyle = "#dc2626"; ctx.fillRect(o.x, groundY-25, 80, 30); // Carro vermelho
+            ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(o.x+15, groundY+5, 10, 0, 7); ctx.arc(o.x+65, groundY+5, 10, 0, 7); ctx.fill();
+        } else if(o.type === 'bus') {
+            ctx.fillStyle = "#16a34a"; ctx.fillRect(o.x, groundY-50, 120, 55); // Ônibus verde
+            ctx.fillStyle = "#93c5fd"; ctx.fillRect(o.x+10, groundY-40, 100, 15); // Janelas
+        } else {
+            ctx.fillStyle = "#000"; ctx.fillRect(o.x, groundY-15, 50, 20); // Obstáculo moto/buraco
+        }
 
-        if (o.x < player.x+30 && o.x+60 > player.x && player.y > groundY-70) {
-            score = Math.max(0, score - 1);
-            playSound(100, 'square', 0.1, 0.05);
+        // Colisão
+        if (o.x < player.x+40 && o.x+80 > player.x && player.y > groundY-80) {
+            score = Math.max(0, score - 5);
+            playSound(150, 'square', 0.2, 0.05);
             document.getElementById("hud").innerText = "R$ " + score;
         }
     });
@@ -197,9 +213,10 @@ function loop() {
         c.x -= 10; c.angle += 0.2;
         ctx.save(); ctx.translate(c.x, c.y); ctx.scale(Math.cos(c.angle), 1);
         ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(0,0,c.r,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle = "#b45309"; ctx.font = "bold 18px Arial"; ctx.fillText("$", -6, 7); ctx.restore();
+        ctx.strokeStyle = "#92400e"; ctx.lineWidth = 3; ctx.stroke();
+        ctx.fillStyle = "#b45309"; ctx.font = "bold 20px Arial"; ctx.fillText("$", -7, 8); ctx.restore();
 
-        if (Math.hypot(c.x - (player.x+25), c.y - (player.y+40)) < 45) {
+        if (Math.hypot(c.x - (player.x+30), c.y - (player.y+40)) < 50) {
             score += 100; playSound(880, 'sine', 0.1, 0.15);
             coins.splice(i, 1);
             document.getElementById("hud").innerText = "R$ " + score;
@@ -207,7 +224,7 @@ function loop() {
         }
     });
 
-    obstacles = obstacles.filter(o => o.x > -150);
+    obstacles = obstacles.filter(o => o.x > -200);
     requestAnimationFrame(loop);
 }
 
@@ -217,8 +234,10 @@ function start() {
     run = true; loop();
 }
 
-window.addEventListener("mousedown", () => { if(player.y >= groundY-player.h) player.vy = -16; });
-window.addEventListener("touchstart", (e) => { e.preventDefault(); if(player.y >= groundY-player.h) player.vy = -16; });
+// Controles
+window.addEventListener("mousedown", () => { if(player.y >= groundY-player.h) player.vy = -18; });
+window.addEventListener("touchstart", (e) => { e.preventDefault(); if(player.y >= groundY-player.h) player.vy = -18; });
+window.addEventListener("keydown", (e) => { if(e.code === "Space" && player.y >= groundY-player.h) player.vy = -18; });
 </script>
 </body>
 </html>
