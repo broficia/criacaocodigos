@@ -15,7 +15,7 @@
     .popup-content button { cursor: pointer; margin-top: 25px; padding: 18px 40px; font-size: 20px; font-weight: 900; border: none; border-radius: 14px; background: #2563eb; color: #fff; box-shadow: 0 10px 0 #1e40af; transition: all 0.1s; }
     .popup-content button:active { transform: translateY(5px); box-shadow: 0 5px 0 #1e40af; }
     .hidden { display: none; }
-    #mute-btn { position: fixed; bottom: 20px; left: 20px; z-index: 50; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 40px; height: 40px; color: #fff; cursor: pointer; }
+    #mute-btn { position: fixed; bottom: 20px; left: 20px; z-index: 50; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 45px; height: 45px; color: #fff; cursor: pointer; font-size: 20px; }
 </style>
 </head>
 <body>
@@ -27,7 +27,7 @@
     <div class="popup-content">
         <div style="font-size: 50px;">🏎️</div>
         <h2>ACELERE!</h2>
-        <p>Mostre que você tem agilidade para gerenciar crises e ganhe seu bônus.</p>
+        <p>Mostre sua agilidade e conquiste seu bônus de Gestor.</p>
         <button onclick="start()">JOGAR E GANHAR</button>
     </div>
 </div>
@@ -36,8 +36,8 @@
     <div class="popup-content">
         <div style="font-size: 60px;">💰</div>
         <h2>META BATIDA!</h2>
-        <p>Você provou ser um <b>Gestor de Elite</b>. Seu desconto está liberado!</p>
-        <button onclick="location.href='SUA_VSL_AQUI.html'">ACESSAR CURSO AGORA</button>
+        <p>Você é um <b>Gestor de Elite</b>. Seu desconto está liberado!</p>
+        <button onclick="location.href='SUA_VSL_AQUI.html'">RESGATAR AGORA</button>
     </div>
 </div>
 
@@ -53,15 +53,18 @@ canvas.width = 800; canvas.height = 400;
 let run = false, score = 0, frame = 0, muted = false;
 const groundY = 320;
 
-// Audio Context dinâmico (não precisa de arquivo externo)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+// Função de áudio melhorada para som de fundo mais forte
 function playSound(freq, type, duration, vol=0.1) {
     if(muted) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.type = type; 
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
     gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    // Suaviza a saída do som para não dar estalo
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime + duration);
 }
@@ -80,17 +83,14 @@ const player = {
     },
     draw() {
         ctx.save();
-        // Capa animada
-        ctx.fillStyle = "#dc2626";
+        ctx.fillStyle = "#dc2626"; // Capa
         ctx.beginPath();
         ctx.moveTo(this.x + 5, this.y + 15);
         ctx.quadraticCurveTo(this.x - 25 - (Math.sin(frame*0.3)*8), this.y + 30, this.x + 5, this.y + 55);
         ctx.fill();
-        // Corpo e Cabeça
-        ctx.fillStyle = "#1e293b"; ctx.fillRect(this.x + 10, this.y + 20, 22, 35);
-        ctx.fillStyle = "#ffdbac"; ctx.beginPath(); ctx.arc(this.x + 21, this.y + 10, 11, 0, Math.PI*2); ctx.fill();
-        // Pernas (Animação de corrida)
-        ctx.lineWidth = 5; ctx.strokeStyle = "#1e293b";
+        ctx.fillStyle = "#1e293b"; ctx.fillRect(this.x + 10, this.y + 20, 22, 35); // Terno
+        ctx.fillStyle = "#ffdbac"; ctx.beginPath(); ctx.arc(this.x + 21, this.y + 10, 11, 0, Math.PI*2); ctx.fill(); // Cabeça
+        ctx.lineWidth = 5; ctx.strokeStyle = "#1e293b"; // Pernas
         let legX = Math.sin(frame * 0.25) * 12;
         ctx.beginPath(); ctx.moveTo(this.x+15, this.y+55); ctx.lineTo(this.x+15+legX, this.y+72); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(this.x+27, this.y+55); ctx.lineTo(this.x+27-legX, this.y+72); ctx.stroke();
@@ -99,12 +99,6 @@ const player = {
 };
 
 let obstacles = []; let coins = []; let particles = [];
-
-function createParticles(x, y) {
-    for(let i=0; i<8; i++) {
-        particles.push({x, y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1});
-    }
-}
 
 function spawn() {
     if (frame % 90 === 0) {
@@ -118,15 +112,10 @@ function spawn() {
 }
 
 function drawScene() {
-    // Sky
     let g = ctx.createLinearGradient(0,0,0,400); g.addColorStop(0,"#0f172a"); g.addColorStop(1,"#1e293b");
     ctx.fillStyle = g; ctx.fillRect(0,0,800,400);
-    // City Parallax
     ctx.fillStyle = "#334155";
-    for(let i=0; i<5; i++) {
-        ctx.fillRect((i*250) - (frame*1)%250, 150, 100, 200);
-    }
-    // Estrada
+    for(let i=0; i<5; i++) { ctx.fillRect((i*250) - (frame*1)%250, 150, 100, 200); }
     ctx.fillStyle = "#22c55e"; ctx.fillRect(0, groundY, 800, 100);
     ctx.fillStyle = "#334155"; ctx.fillRect(0, groundY, 800, 40);
     ctx.strokeStyle = "#fbbf24"; ctx.setLineDash([30, 30]); ctx.lineDashOffset = frame*8;
@@ -140,8 +129,13 @@ function loop() {
     drawScene();
     spawn();
 
-    // Música de fundo procedural (clima de tensão/ação)
-    if(frame % 20 === 0) playSound(110 + (Math.sin(frame)*20), 'triangle', 0.1, 0.02);
+    // SOM DE FUNDO (BASS): Volume aumentado (0.08) e tipo 'sawtooth' para mais presença
+    if(frame % 25 === 0) {
+        // Sequência de notas de baixo
+        const notes = [110, 123, 130, 146];
+        const note = notes[Math.floor((frame/25)%4)];
+        playSound(note, 'sawtooth', 0.4, 0.08); 
+    }
 
     player.update();
     player.draw();
@@ -149,20 +143,19 @@ function loop() {
     obstacles.forEach((o, i) => {
         o.x -= 8;
         ctx.fillStyle = o.type === 'car' ? "#ef4444" : o.type === 'bus' ? "#eab308" : "#000";
-        if(o.type === 'hole') ctx.beginPath(), ctx.ellipse(o.x+30, groundY+5, 40, 10, 0, 0, Math.PI*2), ctx.fill();
+        if(o.type === 'hole') { ctx.beginPath(); ctx.ellipse(o.x+30, groundY+5, 40, 10, 0, 0, Math.PI*2); ctx.fill(); }
         else ctx.fillRect(o.x, groundY-40, o.w, 40);
 
         if (o.x < player.x+25 && o.x+o.w > player.x && player.y > groundY-65) {
             if(frame % 10 === 0) {
                 score = Math.max(0, score - 2);
-                playSound(150, 'sawtooth', 0.2, 0.05);
+                playSound(100, 'square', 0.2, 0.1); // Som de dano
             }
         }
     });
 
     coins.forEach((c, i) => {
-        c.x -= 8;
-        c.angle += 0.15;
+        c.x -= 8; c.angle += 0.15;
         ctx.save();
         ctx.translate(c.x, c.y); ctx.scale(Math.cos(c.angle), 1);
         ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(0,0,c.r,0,Math.PI*2); ctx.fill();
@@ -171,8 +164,8 @@ function loop() {
 
         if (Math.hypot(c.x - (player.x+20), c.y - (player.y+35)) < 45) {
             score += 100;
-            createParticles(c.x, c.y);
-            playSound(880, 'sine', 0.1, 0.1);
+            for(let j=0; j<5; j++) particles.push({x:c.x, y:c.y, vx:(Math.random()-0.5)*10, vy:(Math.random()-0.5)*10, life:1});
+            playSound(880, 'sine', 0.1, 0.15); // Som da moeda
             coins.splice(i, 1);
             document.getElementById("hud").innerText = "R$ " + score;
             if(score >= 1000) { run = false; document.getElementById("end").classList.remove("hidden"); }
@@ -180,7 +173,7 @@ function loop() {
     });
 
     particles.forEach((p, i) => {
-        p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+        p.x += p.vx; p.y += p.vy; p.life -= 0.03;
         ctx.fillStyle = `rgba(251, 191, 36, ${p.life})`;
         ctx.fillText("$", p.x, p.y);
         if(p.life <= 0) particles.splice(i, 1);
@@ -196,9 +189,8 @@ function start() {
     run = true; loop();
 }
 
-window.addEventListener("keydown", (e) => { if(e.code === "Space" && player.y >= groundY-player.h) player.vy = -16; });
-window.addEventListener("touchstart", (e) => { e.preventDefault(); if(player.y >= groundY-player.h) player.vy = -16; });
 window.addEventListener("mousedown", () => { if(player.y >= groundY-player.h) player.vy = -16; });
+window.addEventListener("touchstart", (e) => { e.preventDefault(); if(player.y >= groundY-player.h) player.vy = -16; });
 </script>
 </body>
 </html>
