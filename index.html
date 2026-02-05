@@ -2,20 +2,19 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Runner Milionário Pro</title>
+<title>Gestor Milionário Runner</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
     body { margin: 0; background: #020617; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
     #hud { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #fbbf24, #d97706); color: #fff; padding: 12px 30px; border-radius: 50px; font-size: 24px; font-weight: bold; z-index: 20; box-shadow: 0 4px 20px #fbbf2466; border: 2px solid #fff; }
     #wrapper { position: relative; width: 100%; max-width: 600px; height: 350px; border-radius: 24px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.8); border: 3px solid #334155; }
-    canvas { width: 100%; height: 100%; background: #000; display: block; }
+    canvas { width: 100%; height: 100%; background: #0f172a; display: block; }
     .popup { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: flex; align-items: center; justify-content: center; z-index: 30; backdrop-filter: blur(8px); }
-    .popup-content { background: #fff; padding: 40px; border-radius: 24px; text-align: center; max-width: 400px; border: 4px solid #fbbf24; }
-    .popup-content h2 { color: #1e293b; font-size: 32px; margin: 0; }
-    .popup-content button { cursor: pointer; margin-top: 25px; padding: 18px 40px; font-size: 20px; font-weight: 900; border: none; border-radius: 14px; background: #2563eb; color: #fff; box-shadow: 0 10px 0 #1e40af; transition: all 0.1s; }
-    .popup-content button:active { transform: translateY(5px); box-shadow: 0 5px 0 #1e40af; }
+    .popup-content { background: #fff; padding: 30px; border-radius: 24px; text-align: center; max-width: 350px; border: 4px solid #fbbf24; }
+    .popup-content h2 { color: #1e293b; font-size: 28px; margin: 10px 0; }
+    .popup-content button { cursor: pointer; margin-top: 20px; padding: 15px 35px; font-size: 18px; font-weight: 900; border: none; border-radius: 12px; background: #2563eb; color: #fff; box-shadow: 0 6px 0 #1e40af; }
     .hidden { display: none; }
-    #mute-btn { position: fixed; bottom: 20px; left: 20px; z-index: 50; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 45px; height: 45px; color: #fff; cursor: pointer; font-size: 20px; }
+    #mute-btn { position: fixed; bottom: 20px; left: 20px; z-index: 50; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 45px; height: 45px; color: #fff; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -25,9 +24,9 @@
 
 <div id="start" class="popup">
     <div class="popup-content">
-        <div style="font-size: 50px;">🏎️</div>
+        <div style="font-size: 50px;">🦸‍♂️</div>
         <h2>ACELERE!</h2>
-        <p>Mostre sua agilidade e conquiste seu bônus de Gestor.</p>
+        <p>Mostre sua agilidade de Gestor e conquiste seu bônus de Elite.</p>
         <button onclick="start()">JOGAR E GANHAR</button>
     </div>
 </div>
@@ -36,7 +35,7 @@
     <div class="popup-content">
         <div style="font-size: 60px;">💰</div>
         <h2>META BATIDA!</h2>
-        <p>Você é um <b>Gestor de Elite</b>. Seu desconto está liberado!</p>
+        <p>Você provou ser um Gestor de Elite. Seu desconto está liberado!</p>
         <button onclick="location.href='SUA_VSL_AQUI.html'">RESGATAR AGORA</button>
     </div>
 </div>
@@ -52,18 +51,14 @@ canvas.width = 800; canvas.height = 400;
 
 let run = false, score = 0, frame = 0, muted = false;
 const groundY = 320;
-
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// Função de áudio melhorada para som de fundo mais forte
 function playSound(freq, type, duration, vol=0.1) {
     if(muted) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = type; 
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
     gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    // Suaviza a saída do som para não dar estalo
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime + duration);
@@ -75,7 +70,7 @@ function toggleMute() {
 }
 
 const player = {
-    x: 80, y: groundY - 60, w: 40, h: 70, vy: 0, gravity: 0.8,
+    x: 80, y: groundY - 80, w: 50, h: 80, vy: 0, gravity: 0.8,
     update() {
         this.vy += this.gravity;
         this.y += this.vy;
@@ -83,100 +78,133 @@ const player = {
     },
     draw() {
         ctx.save();
-        ctx.fillStyle = "#dc2626"; // Capa
+        let shake = Math.sin(frame * 0.2) * 2;
+        
+        // CAPA
+        ctx.fillStyle = "#ef4444";
         ctx.beginPath();
-        ctx.moveTo(this.x + 5, this.y + 15);
-        ctx.quadraticCurveTo(this.x - 25 - (Math.sin(frame*0.3)*8), this.y + 30, this.x + 5, this.y + 55);
+        ctx.moveTo(this.x + 10, this.y + 25);
+        ctx.bezierCurveTo(this.x - 40, this.y + 10 + shake, this.x - 30, this.y + 60 + shake, this.x + 10, this.y + 55);
         ctx.fill();
-        ctx.fillStyle = "#1e293b"; ctx.fillRect(this.x + 10, this.y + 20, 22, 35); // Terno
-        ctx.fillStyle = "#ffdbac"; ctx.beginPath(); ctx.arc(this.x + 21, this.y + 10, 11, 0, Math.PI*2); ctx.fill(); // Cabeça
-        ctx.lineWidth = 5; ctx.strokeStyle = "#1e293b"; // Pernas
-        let legX = Math.sin(frame * 0.25) * 12;
-        ctx.beginPath(); ctx.moveTo(this.x+15, this.y+55); ctx.lineTo(this.x+15+legX, this.y+72); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(this.x+27, this.y+55); ctx.lineTo(this.x+27-legX, this.y+72); ctx.stroke();
+
+        // CORPO (Terno Azul Vivo)
+        ctx.fillStyle = "#2563eb";
+        ctx.fillRect(this.x + 12, this.y + 20, 26, 40);
+        
+        // CABEÇA E ROSTO
+        ctx.fillStyle = "#ffdbac";
+        ctx.beginPath(); ctx.arc(this.x + 25, this.y + 10, 14, 0, Math.PI * 2); ctx.fill();
+        
+        // CABELO
+        ctx.fillStyle = "#451a03";
+        ctx.beginPath(); ctx.arc(this.x + 25, this.y + 5, 15, Math.PI, 0); ctx.fill();
+
+        // OLHOS
+        ctx.fillStyle = "white";
+        ctx.fillRect(this.x + 20, this.y + 8, 4, 4);
+        ctx.fillRect(this.x + 28, this.y + 8, 4, 4);
+        ctx.fillStyle = "black";
+        ctx.fillRect(this.x + 21, this.y + 9, 2, 2);
+        ctx.fillRect(this.x + 29, this.y + 9, 2, 2);
+
+        // SOBRANCELHAS (Estilo determinado)
+        ctx.strokeStyle = "#451a03"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(this.x+19, this.y+5); ctx.lineTo(this.x+24, this.y+7); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.x+31, this.y+5); ctx.lineTo(this.x+26, this.y+7); ctx.stroke();
+
+        // BOCA E NARIZ
+        ctx.fillStyle = "#000"; ctx.fillRect(this.x + 24, this.y + 12, 2, 3); // Nariz
+        ctx.strokeStyle = "#991b1b"; ctx.beginPath(); ctx.arc(this.x+25, this.y+16, 3, 0.2, Math.PI-0.2); ctx.stroke();
+
+        // PERNAS
+        ctx.strokeStyle = "#1e3a8a"; ctx.lineWidth = 6;
+        let legX = Math.sin(frame * 0.3) * 15;
+        ctx.beginPath(); ctx.moveTo(this.x+18, this.y+60); ctx.lineTo(this.x+18+legX, this.y+80); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(this.x+32, this.y+60); ctx.lineTo(this.x+32-legX, this.y+80); ctx.stroke();
+        
         ctx.restore();
     }
 };
 
-let obstacles = []; let coins = []; let particles = [];
-
-function spawn() {
-    if (frame % 90 === 0) {
-        const types = ['car', 'bus', 'hole'];
-        const type = types[Math.floor(Math.random()*types.length)];
-        obstacles.push({ x: 850, type, w: type === 'bus' ? 110 : 60 });
-    }
-    if (frame % 50 === 0) {
-        coins.push({ x: 850, y: groundY - 60 - Math.random()*120, r: 14, angle: 0 });
-    }
-}
+let buildings = [];
+for(let i=0; i<10; i++) buildings.push({x: i*120, w: 80 + Math.random()*40, h: 150 + Math.random()*150});
 
 function drawScene() {
-    let g = ctx.createLinearGradient(0,0,0,400); g.addColorStop(0,"#0f172a"); g.addColorStop(1,"#1e293b");
+    // Fundo Noite
+    let g = ctx.createLinearGradient(0,0,0,400); g.addColorStop(0,"#020617"); g.addColorStop(1,"#1e1b4b");
     ctx.fillStyle = g; ctx.fillRect(0,0,800,400);
-    ctx.fillStyle = "#334155";
-    for(let i=0; i<5; i++) { ctx.fillRect((i*250) - (frame*1)%250, 150, 100, 200); }
-    ctx.fillStyle = "#22c55e"; ctx.fillRect(0, groundY, 800, 100);
-    ctx.fillStyle = "#334155"; ctx.fillRect(0, groundY, 800, 40);
-    ctx.strokeStyle = "#fbbf24"; ctx.setLineDash([30, 30]); ctx.lineDashOffset = frame*8;
-    ctx.beginPath(); ctx.moveTo(0, groundY+20); ctx.lineTo(800, groundY+20); ctx.stroke(); ctx.setLineDash([]);
+
+    // Prédios (Parallax)
+    ctx.fillStyle = "#0f172a";
+    buildings.forEach(b => {
+        b.x -= 1; if(b.x < -150) b.x = 900;
+        ctx.fillRect(b.x, 400 - b.h, b.w, b.h);
+        // Janelas iluminadas
+        ctx.fillStyle = "#fde047";
+        for(let j=0; j<3; j++) {
+           if((frame+b.x)%50 > 10) ctx.fillRect(b.x + 10 + (j*25), 400 - b.h + 20, 10, 10);
+        }
+        ctx.fillStyle = "#0f172a";
+    });
+
+    // Grama Pixelada
+    ctx.fillStyle = "#166534"; ctx.fillRect(0, groundY, 800, 100);
+    for(let i=0; i<40; i++) {
+        ctx.fillStyle = "#22c55e";
+        ctx.fillRect((i*30 - (frame*5)%30), groundY - 5, 15, 5);
+    }
+
+    // Estrada
+    ctx.fillStyle = "#334155"; ctx.fillRect(0, groundY + 10, 800, 50);
+    ctx.strokeStyle = "#fff"; ctx.setLineDash([40, 40]); ctx.lineDashOffset = frame*10;
+    ctx.beginPath(); ctx.moveTo(0, groundY+35); ctx.lineTo(800, groundY+35); ctx.stroke(); ctx.setLineDash([]);
 }
+
+let obstacles = []; let coins = [];
 
 function loop() {
     if (!run) return;
     frame++;
     ctx.clearRect(0,0,800,400);
     drawScene();
-    spawn();
 
-    // SOM DE FUNDO (BASS): Volume aumentado (0.08) e tipo 'sawtooth' para mais presença
-    if(frame % 25 === 0) {
-        // Sequência de notas de baixo
-        const notes = [110, 123, 130, 146];
-        const note = notes[Math.floor((frame/25)%4)];
-        playSound(note, 'sawtooth', 0.4, 0.08); 
-    }
+    // Som de fundo (Bassline)
+    if(frame % 25 === 0) playSound(110 + ((frame/25)%4 * 10), 'sawtooth', 0.4, 0.08);
 
     player.update();
     player.draw();
 
-    obstacles.forEach((o, i) => {
-        o.x -= 8;
-        ctx.fillStyle = o.type === 'car' ? "#ef4444" : o.type === 'bus' ? "#eab308" : "#000";
-        if(o.type === 'hole') { ctx.beginPath(); ctx.ellipse(o.x+30, groundY+5, 40, 10, 0, 0, Math.PI*2); ctx.fill(); }
-        else ctx.fillRect(o.x, groundY-40, o.w, 40);
+    if (frame % 80 === 0) {
+        const types = ['car', 'bus', 'hole'];
+        obstacles.push({ x: 850, type: types[Math.floor(Math.random()*3)], w: 70 });
+    }
+    if (frame % 40 === 0) coins.push({ x: 850, y: groundY - 60 - Math.random()*120, r: 15, angle: 0 });
 
-        if (o.x < player.x+25 && o.x+o.w > player.x && player.y > groundY-65) {
-            if(frame % 10 === 0) {
-                score = Math.max(0, score - 2);
-                playSound(100, 'square', 0.2, 0.1); // Som de dano
-            }
+    obstacles.forEach((o, i) => {
+        o.x -= 10;
+        ctx.fillStyle = o.type === 'car' ? "#dc2626" : o.type === 'bus' ? "#166534" : "#000";
+        if(o.type === 'hole') { ctx.beginPath(); ctx.ellipse(o.x+35, groundY+20, 40, 10, 0, 0, Math.PI*2); ctx.fill(); }
+        else ctx.fillRect(o.x, groundY-30, o.w + (o.type==='bus'?40:0), 40);
+
+        if (o.x < player.x+30 && o.x+60 > player.x && player.y > groundY-70) {
+            score = Math.max(0, score - 1);
+            playSound(100, 'square', 0.1, 0.05);
+            document.getElementById("hud").innerText = "R$ " + score;
         }
     });
 
     coins.forEach((c, i) => {
-        c.x -= 8; c.angle += 0.15;
-        ctx.save();
-        ctx.translate(c.x, c.y); ctx.scale(Math.cos(c.angle), 1);
+        c.x -= 10; c.angle += 0.2;
+        ctx.save(); ctx.translate(c.x, c.y); ctx.scale(Math.cos(c.angle), 1);
         ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(0,0,c.r,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle = "#92400e"; ctx.font = "bold 16px Arial"; ctx.fillText("$", -5, 6);
-        ctx.restore();
+        ctx.fillStyle = "#b45309"; ctx.font = "bold 18px Arial"; ctx.fillText("$", -6, 7); ctx.restore();
 
-        if (Math.hypot(c.x - (player.x+20), c.y - (player.y+35)) < 45) {
-            score += 100;
-            for(let j=0; j<5; j++) particles.push({x:c.x, y:c.y, vx:(Math.random()-0.5)*10, vy:(Math.random()-0.5)*10, life:1});
-            playSound(880, 'sine', 0.1, 0.15); // Som da moeda
+        if (Math.hypot(c.x - (player.x+25), c.y - (player.y+40)) < 45) {
+            score += 100; playSound(880, 'sine', 0.1, 0.15);
             coins.splice(i, 1);
             document.getElementById("hud").innerText = "R$ " + score;
             if(score >= 1000) { run = false; document.getElementById("end").classList.remove("hidden"); }
         }
-    });
-
-    particles.forEach((p, i) => {
-        p.x += p.vx; p.y += p.vy; p.life -= 0.03;
-        ctx.fillStyle = `rgba(251, 191, 36, ${p.life})`;
-        ctx.fillText("$", p.x, p.y);
-        if(p.life <= 0) particles.splice(i, 1);
     });
 
     obstacles = obstacles.filter(o => o.x > -150);
