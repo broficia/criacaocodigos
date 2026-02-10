@@ -23,15 +23,14 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
-            -webkit-text-size-adjust: 100%; /* Evita ajuste de texto no iOS */
+            -webkit-text-size-adjust: 100%;
         }
 
-        /* Container de Notificações */
         #notification-container {
             position: fixed;
             top: 15px;
             right: 15px;
-            left: 15px; /* Centraliza melhor no mobile */
+            left: 15px;
             z-index: 9999;
             pointer-events: none;
         }
@@ -40,7 +39,7 @@
             background: rgba(255, 255, 255, 0.98);
             color: #1a1a1a;
             padding: 10px 15px;
-            border-radius: 50px; /* Estilo pílula, mais moderno */
+            border-radius: 50px;
             margin-bottom: 8px;
             display: flex;
             align-items: center;
@@ -60,10 +59,9 @@
             border: 2px solid #27ae60;
         }
 
-        .notif-text { font-size: 13px; line-height: 1.2; }
+        .notif-text { font-size: 12px; line-height: 1.2; }
         .notif-text b { color: #27ae60; font-weight: 800; }
 
-        /* Card Principal */
         .main-card {
             background: var(--card-bg);
             width: 90%;
@@ -74,7 +72,6 @@
             text-align: center;
             box-shadow: 0 0 50px rgba(0, 212, 255, 0.08);
             position: relative;
-            z-index: 1;
         }
 
         .header-info { margin-bottom: 20px; }
@@ -84,37 +81,46 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             font-weight: bold;
-            display: block;
         }
-        .transaction-id { font-size: 10px; color: var(--text-gray); opacity: 0.7; }
 
         .value-box {
             background: linear-gradient(135deg, #00d4ff15, #00d4ff05);
-            padding: 22px;
+            padding: 20px;
             border-radius: 20px;
             border: 1px dashed rgba(0, 212, 255, 0.3);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
-        .value-label { font-size: 11px; color: var(--text-gray); letter-spacing: 1px; }
-        .value-amount { font-size: 34px; font-weight: 800; color: white; margin-top: 5px; }
+        .value-amount { font-size: 32px; font-weight: 800; color: white; margin-top: 5px; }
 
-        .input-group { margin-bottom: 12px; }
+        .input-group { 
+            margin-bottom: 10px; 
+            position: relative;
+        }
 
-        /* Input corrigido para NÃO dar zoom */
         input {
             width: 100%;
-            padding: 16px; /* Aumentado para conforto */
+            padding: 15px 15px 15px 45px; /* Espaço para o ícone */
             background: #222;
             border: 1px solid #333;
             border-radius: 14px;
             color: white;
             box-sizing: border-box;
             outline: none;
-            font-size: 16px; /* Mínimo de 16px para evitar zoom no iOS */
+            font-size: 16px; /* Evita zoom iOS */
             transition: 0.3s;
         }
 
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            font-size: 18px;
+        }
+
         input:focus { border-color: var(--primary); background: #282828; }
+        input:focus + i { color: var(--primary); }
 
         .btn-confirm {
             width: 100%;
@@ -127,15 +133,14 @@
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
-            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.2);
         }
 
         .footer-security {
-            margin-top: 25px;
+            margin-top: 20px;
             display: flex;
             justify-content: center;
             gap: 15px;
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-gray);
             opacity: 0.6;
         }
@@ -157,27 +162,33 @@
     <div class="main-card">
         <div class="header-info">
             <span class="company-name">Monaia Pagamentos LTDA</span>
-            <span class="transaction-id">SESSÃO: SEC-9982-BR</span>
         </div>
 
         <div class="value-box">
-            <div class="value-label">PAGAMENTO PENDENTE</div>
+            <div style="font-size: 10px; color: var(--text-gray);">VALOR A RECEBER</div>
             <div class="value-amount">R$ 2.000,00</div>
         </div>
 
         <div class="input-group">
-            <input type="text" placeholder="Seu nome completo" inputmode="text">
+            <i class="fas fa-user"></i>
+            <input type="text" placeholder="Seu nome completo">
         </div>
 
         <div class="input-group">
-            <input type="text" placeholder="Sua chave PIX" inputmode="text">
+            <i class="fas fa-university"></i>
+            <input type="text" placeholder="Nome do seu Banco (Ex: Nubank)">
         </div>
 
-        <button class="btn-confirm" onclick="return false;">Confirmar e Receber Agora</button>
+        <div class="input-group">
+            <i class="fas fa-key"></i>
+            <input type="text" placeholder="Sua chave PIX">
+        </div>
+
+        <button class="btn-confirm">Confirmar e Receber Agora</button>
 
         <div class="footer-security">
-            <span><i class="fas fa-check-circle"></i> Verificado</span>
-            <span><i class="fas fa-shield-alt"></i> Criptografado</span>
+            <span><i class="fas fa-shield-alt"></i> Transação Segura</span>
+            <span><i class="fas fa-lock"></i> Dados Protegidos</span>
         </div>
     </div>
 
@@ -194,16 +205,16 @@
             {n: "Camila Rocha", v: "2.005", g: "women"},
             {n: "Gustavo Henrique", v: "2.080", g: "men"},
             {n: "Larissa Melo", v: "2.040", g: "women"},
-            {n: "Bruno Almeida", v: "2.025", g: "men"}
+            {n: "Bruno Almeida", v: "2.025", g: "men"},
+            {n: "Tainá Santos", v: "2.110", g: "women"},
+            {n: "Lucas Ferreira", v: "2.045", g: "men"}
         ];
 
         function showNotification() {
             const container = document.getElementById('notification-container');
             const sound = document.getElementById('notif-sound');
             const data = notifications[Math.floor(Math.random() * notifications.length)];
-            
-            // Puxa foto baseada no gênero (men ou women) e gera ID aleatório para não repetir foto
-            const randomId = Math.floor(Math.random() * 50);
+            const randomId = Math.floor(Math.random() * 70);
             const imgUrl = `https://randomuser.me/api/portraits/${data.g}/${randomId}.jpg`;
 
             const div = document.createElement('div');
@@ -211,13 +222,11 @@
             div.innerHTML = `
                 <img src="${imgUrl}" alt="User">
                 <div class="notif-text">
-                    ${data.n} recebeu <br><b>R$ ${data.v} no Pix</b>
+                    ${data.n} recebeu <br><b>R$ ${data.v} via Pix</b>
                 </div>
             `;
 
             container.appendChild(div);
-            
-            // Tenta tocar o som (navegadores podem bloquear sem clique prévio)
             sound.play().catch(() => {});
 
             setTimeout(() => {
@@ -226,9 +235,8 @@
             }, 3500);
         }
 
-        // Loop de notificações
         setInterval(showNotification, 6000);
-        setTimeout(showNotification, 1500); // Primeira notificação logo ao abrir
+        setTimeout(showNotification, 1500);
     </script>
 </body>
 </html>
